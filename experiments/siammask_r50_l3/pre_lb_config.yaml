@@ -1,0 +1,91 @@
+META_ARC: "siamrpn_r50_l234_dwxcorr"
+
+BACKBONE:
+    TYPE: "resnet50"
+    KWARGS:
+        used_layers: [0, 1, 2, 3]
+
+ADJUST:
+    ADJUST: true
+    TYPE: "AdjustAllLayer"
+    KWARGS:
+        in_channels: [1024]
+        out_channels: [256]
+
+RPN:
+    TYPE: 'DepthwiseRPN'
+    KWARGS:
+        anchor_num: 5
+        in_channels: 256
+        out_channels: 256
+
+MASK:
+    MASK: True
+    TYPE: 'MaskCorr'
+    KWARGS:
+        in_channels: 256
+        hidden: 256
+        out_channels: 3969
+
+# REFINE:
+#     REFINE: True
+#     TYPE: 'Refine'
+
+ANCHOR:
+    STRIDE: 8
+    RATIOS: [0.33, 0.5, 1, 2, 3]
+    SCALES: [8]
+    ANCHOR_NUM: 5
+
+TRACK:
+    TYPE: 'SiamMaskTracker'
+    PENALTY_K: 0.10
+    WINDOW_INFLUENCE: 0.41
+    LR: 0.32
+    EXEMPLAR_SIZE: 127
+    INSTANCE_SIZE: 255
+    BASE_SIZE: 8
+    CONTEXT_AMOUNT: 0.5
+    MASK_THERSHOLD: 0.15
+
+# Predictive fine-tuning settings
+DATASET:
+    NAMES: ('VID', 'LaSOT', 'GOT') #('VID','LaSOT')
+    VIDEOS_PER_EPOCH: 10000 # 10000
+    USE_IMG: False
+
+TRAIN:
+    EPOCH: 100
+    LATENCY: 3 # number of frames that will be skipped
+    LOG_DIR: './logs/Mask_LB5'
+    SNAPSHOT_DIR: './snapshot/Mask_LB5'
+    JITTER: 2 # jitter for input latency
+    PRE_TARGET: 6 # target of prediction
+    RESUME: 'pretrained/Mask_R50.pth' # Original trained tracking model
+    # RESUME: './snapshot/checkpoint_e45_l6_vid.pth'
+    NUM_FRAME: 3
+    BATCH_SIZE: 128
+    LR: # for learning rate scheduler
+        PRED_LR: 0.03 #0.1
+        TYPE: 'multi-step'
+        KWARGS:
+            start_lr: 0.03
+            steps: [15, 40, 30, 50, 80]
+            mult: 0.5
+            epochs: 100
+    LR_WARMUP:
+        WARMUP: False
+    NUM_WORKERS: 24
+# TRAIN.LR_WARMUP.WARMUP = True
+# Predictor setting
+PRED:
+    MODE: 'A+B'
+    TRAIN: True
+    TYPE: 'LB_v5'
+    INPUT_RATIO: 0.0
+    KWARGS:
+        hidden_1: 64
+        hidden_2: 32
+        hidden_3: 32
+        num_input: 3
+        num_output: 6

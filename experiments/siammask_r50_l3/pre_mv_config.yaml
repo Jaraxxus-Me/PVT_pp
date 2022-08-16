@@ -1,0 +1,104 @@
+META_ARC: "siamrpn_r50_l234_dwxcorr"
+
+BACKBONE:
+    TYPE: "resnet50"
+    KWARGS:
+        used_layers: [0, 1, 2, 3]
+
+ADJUST:
+    ADJUST: true
+    TYPE: "AdjustAllLayer"
+    KWARGS:
+        in_channels: [1024]
+        out_channels: [256]
+
+RPN:
+    TYPE: 'DepthwiseRPN'
+    KWARGS:
+        anchor_num: 5
+        in_channels: 256
+        out_channels: 256
+
+MASK:
+    MASK: True
+    TYPE: 'MaskCorr'
+    KWARGS:
+        in_channels: 256
+        hidden: 256
+        out_channels: 3969
+
+# REFINE:
+#     REFINE: True
+#     TYPE: 'Refine'
+
+ANCHOR:
+    STRIDE: 8
+    RATIOS: [0.33, 0.5, 1, 2, 3]
+    SCALES: [8]
+    ANCHOR_NUM: 5
+
+TRACK:
+    TYPE: 'SiamMaskTracker'
+    PENALTY_K: 0.10
+    WINDOW_INFLUENCE: 0.41
+    LR: 0.32
+    EXEMPLAR_SIZE: 127
+    INSTANCE_SIZE: 255
+    BASE_SIZE: 8
+    CONTEXT_AMOUNT: 0.5
+    MASK_THERSHOLD: 0.15
+
+# Predictive fine-tuning settings
+DATASET:
+    NEG: 0.0
+    NAMES: ('VID', 'LaSOT', 'GOT') #('VID','LaSOT')
+    USE_IMG: True
+    SEARCH:
+        SHIFT: 0
+        SCALE: 0.0
+    VIDEOS_PER_EPOCH: 10000 # 10000
+
+TRAIN:
+    EPOCH: 300
+    TRACKER_EPOCH: 10
+    LOG_DIR: './logs/Mask_mv16'
+    SNAPSHOT_DIR: './snapshot/Mask_mv16'
+    LATENCY: 3 # number of frames that will be skipped
+    JITTER: 2 # jitter for input latency
+    PRE_TARGET: 6 # target of prediction
+    RESUME: 'pretrained/Mask_R50.pth' # Original trained tracking model
+    NUM_FRAME: 3
+    BATCH_SIZE: 128
+    FIX_T: False
+    BASE_LR: 0.00001
+    LR: # for learning rate scheduler
+        PRED_LR: 0.004 # 0.1
+        BACKBONE_LR: 0 # Times of 0.1*BASE_LR
+        NECK_LR: 10 # Times of BASE_LR
+        TYPE: 'multi-step'
+        KWARGS:
+            start_lr: 0.004
+            steps: [200]
+            mult: 0.1
+            epochs: 300
+    LR_WARMUP:
+        WARMUP: False
+    NUM_WORKERS: 24
+# TRAIN.LR_WARMUP.WARMUP = True
+# Predictor setting
+PRED:
+    MODE: 'AB'
+    TRAIN: True
+    TYPE: 'MV_v16'
+    M_WEIGHT: 0.1
+    V_WEIGHT: 0.1
+    MV_WEIGHT: 1.0
+    KWARGS:
+        dwconv_k: 3
+        dwconv_id: 256 # last layer channel
+        dwconv_hd: 64
+        hidden_1: 64
+        hidden_2: 32
+        hidden_3: 32
+        num_input: 3
+        num_output: 6
