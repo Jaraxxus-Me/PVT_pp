@@ -7,6 +7,7 @@ from .uavdt import UAVDTDataset
 from .dtb import DTB70Dataset
 from .uav20l import UAV20Dataset
 from .uav123 import UAV123Dataset
+from .realworld import RealWorldDataset
 from .visdrone import VISDRONEDataset
 class DatasetFactory(object):
     @staticmethod
@@ -30,6 +31,8 @@ class DatasetFactory(object):
             dataset = UAV10Dataset(**kwargs)
         elif 'UAV20' in name:
             dataset = UAV20Dataset(**kwargs)
+        elif "RealWorld" in name:
+            dataset = RealWorldDataset(**kwargs)
         elif 'VISDRONE' in name:
             dataset = VISDRONEDataset(**kwargs)
         elif 'UAVDT' in name:

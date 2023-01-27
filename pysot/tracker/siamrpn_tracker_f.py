@@ -11,6 +11,8 @@ from pysot.core.config import cfg
 from pysot.utils.anchor import Anchors
 from pysot.tracker.base_tracker import SiameseTracker
 from pysot.utils.bbox import cxy_wh_2_rect, rect_2_cxy_wh
+# from torchvision.models import resnet50
+from thop import profile
 
 
 class SiamRPNTracker_f(SiameseTracker):
@@ -238,6 +240,10 @@ class SiamRPNTracker_f(SiameseTracker):
             # For LB, there is maximum limit
             target_delta_t = np.arange(curr_fid-latest_fid, min(curr_fid-latest_fid+latency,self.model.predictor.output_num)+1)
         pred_boxes, pred_fidx = self.model.predictor.predict(latest_fid, self.traject, target_delta_t)
+        # input_delta = t.randn(1, 3, 8).cuda()
+        # input_latency = t.randn(1,).cuda()
+        # input_t = t.randn(1, 256, 7, 7).cuda()
+        # input_s = t.randn(1, 3, 256, 31, 31).cuda()
         # clip boundary
         # out_boxes = self._bbox_clip(out_boxes, data['search'].shape[-2:])
         pred_boxes = list(pred_boxes)

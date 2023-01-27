@@ -20,9 +20,9 @@ from toolkit.datasets import DatasetFactory
 
 parser = argparse.ArgumentParser(description='siamrpn tracking')
 # UAVDT/DTB70/UAV20
-parser.add_argument('--dataset', default='RealWorld',type=str,
+parser.add_argument('--dataset', default='DTB70',type=str,
         help='datasets')
-parser.add_argument('--datasetroot', default='testing_dataset/real_world',type=str,
+parser.add_argument('--datasetroot', default='./testing_dataset/DTB70/',type=str,
         help='datasetsroot')
 parser.add_argument('--sim_info', default='testing_dataset/sim_info/DTB70_SiamRPN++_Mob_sim.pkl', help='dataset_sim info')
 parser.add_argument('--fps', default=30,type=int,
@@ -35,9 +35,9 @@ parser.add_argument('--dynamic', default=True,
         help='predict range = latest miss + eta')
 # KF: ./experiments/siamrpn_r50_l234_dwxcorr/pre_kf_config.yaml
 # LB: ./experiments/siamrpn_r50_l234_dwxcorr/pre_lb_config_2.yaml
-parser.add_argument('--config', default='experiments/siamrpn_mobilev2_l234_dwxcorr/pre_kf_config.yaml', type=str,
+parser.add_argument('--config', default='experiments/siamrpn_mobilev2_l234_dwxcorr/pre_mv_config.yaml', type=str,
         help='config file')
-parser.add_argument('--snapshot', default='models/RPN_Mob.pth', type=str,
+parser.add_argument('--snapshot', default='models/RPN_Mob_MV.pth', type=str,
         help='snapshot of models to eval')
 parser.add_argument('--video', default='', type=str,
         help='eval one special video')
