@@ -14,6 +14,9 @@ from pysot.models.predictor.base_predictor import BasePredictor
 from pysot.utils.bbox import cxy_wh_2_rect, rect_2_cxy_wh
 from pysot.core.xcorr import xcorr_fast, xcorr_depthwise
 
+import time
+
+
 
 class MVV16(BasePredictor):
     def __init__(self, num_input, num_output, dwconv_k, dwconv_id, dwconv_hd, hidden_1, hidden_2, hidden_3):
@@ -196,7 +199,9 @@ class MVV16(BasePredictor):
             # in_delta[:,:-len(tra_data['delta']),:] = in_delta[:,-len(tra_data['delta']),:].unsqueeze(1).repeat(1,(self.num_input - len(tra_data['delta'])),1)
             # s_feat[:,:-len(tra_data['search'])] = s_feat[:,-len(tra_data['search'])].unsqueeze(1).repeat(1,(self.num_input - len(tra_data['search'])),1,1,1)
 
-        # Calculate input normalize factor
+        # same as forward
+        t.cuda.synchronize()
+        s = time.time()
         dm = t.abs(in_delta[:,:,4:]).mean(dim=[1],keepdim=True)
         # visual branch
         t_feat = self.conv_kernel(t_feat)
@@ -219,6 +224,9 @@ class MVV16(BasePredictor):
         out_mv = self.out_decode_mv(t.cat(output_mv, dim=1))
         # Predict normalized delta
         norm_loc = out_mv*dm.repeat(1, out_mv.shape[1], 1)
+        t.cuda.synchronize()
+        e = time.time()
+        print('Latency: {}'.format(e-s))
         # convert delta to box
         # input
         meta_box = t.from_numpy(tra_data['boxes'][str(current_fid)]).cuda().unsqueeze(0)

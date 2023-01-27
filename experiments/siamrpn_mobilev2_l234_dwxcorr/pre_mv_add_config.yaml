@@ -1,0 +1,95 @@
+META_ARC: "siamrpn_mobilev2_l234_dwxcorr"
+
+BACKBONE:
+    TYPE: "mobilenetv2"
+    KWARGS:
+        used_layers: [3, 5, 7]
+        width_mult: 1.4
+
+ADJUST:
+    ADJUST: true
+    TYPE: "AdjustAllLayer"
+    KWARGS:
+        in_channels: [44, 134, 448]
+        out_channels: [256, 256, 256]
+
+RPN:
+    TYPE: 'MultiRPN'
+    KWARGS:
+        anchor_num: 5
+        in_channels: [256, 256, 256]
+        weighted: False
+
+MASK:
+    MASK: false
+
+ANCHOR:
+    STRIDE: 8
+    RATIOS: [0.33, 0.5, 1, 2, 3]
+    SCALES: [8]
+    ANCHOR_NUM: 5
+
+TRACK:
+    TYPE: 'SiamRPNTracker'
+    PENALTY_K: 0.04
+    WINDOW_INFLUENCE: 0.4
+    LR: 0.5
+    EXEMPLAR_SIZE: 127
+    INSTANCE_SIZE: 255
+    BASE_SIZE: 8
+    CONTEXT_AMOUNT: 0.5
+
+# Predictive fine-tuning settings
+DATASET:
+    NEG: 0.0
+    NAMES: ('GOT',) #('VID','LaSOT')
+    USE_IMG: True
+    SEARCH:
+        SHIFT: 0
+        SCALE: 0.0
+    VIDEOS_PER_EPOCH: 10000 # 10000
+
+TRAIN:
+    EPOCH: 200
+    TRACKER_EPOCH: 20
+    LOG_DIR: './logs/RPN_Mob_mv16_add'
+    SNAPSHOT_DIR: './snapshot/RPN_Mob_mv16_add'
+    LATENCY: 3 # number of frames that will be skipped
+    JITTER: 1 # jitter for input latency
+    PRE_TARGET: 3 # target of prediction
+    RESUME: 'pretrained/RPN_Mob.pth' # Original trained tracking model
+    NUM_FRAME: 3
+    BATCH_SIZE: 128
+    FIX_T: False
+    BASE_LR: 0.00001
+    LR: # for learning rate scheduler
+        PRED_LR: 0.01 # 0.1
+        BACKBONE_LR: 0 # Times of 0.1*BASE_LR
+        NECK_LR: 10 # Times of BASE_LR
+        TYPE: 'multi-step'
+        KWARGS:
+            start_lr: 0.01
+            steps: [200]
+            mult: 0.1
+            epochs: 280
+    LR_WARMUP:
+        WARMUP: False
+    NUM_WORKERS: 24
+# TRAIN.LR_WARMUP.WARMUP = True
+# Predictor setting
+PRED:
+    MODE: 'AB'
+    TRAIN: True
+    TYPE: 'MV_v16_add'
+    M_WEIGHT: 0.1
+    V_WEIGHT: 0.1
+    MV_WEIGHT: 1.0
+    KWARGS:
+        dwconv_k: 3
+        dwconv_id: 256 # last layer channel
+        dwconv_hd: 64
+        hidden_1: 64
+        hidden_2: 32
+        hidden_3: 32
+        num_input: 3
+        num_output: 3

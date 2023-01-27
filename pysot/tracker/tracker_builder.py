@@ -8,6 +8,7 @@ from pysot.tracker.siamrpn_tracker import SiamRPNTracker
 from pysot.tracker.siamrpn_tracker_f import SiamRPNTracker_f
 from pysot.tracker.siammask_tracker import SiamMaskTracker
 from pysot.tracker.siammask_tracker_f import SiamMaskTracker_f
+from pysot.tracker.siamrpn_tracker_ntr import SiamRPNTracker_ntr
 from pysot.tracker.siamrpnlt_tracker import SiamRPNLTTracker
 
 TRACKS = {
@@ -19,6 +20,7 @@ TRACKS = {
 TRACKSF = {
           'SiamRPNTracker': SiamRPNTracker_f,
           'SiamMaskTracker': SiamRPNTracker_f,
+          'SiamRPNTracker_ntr': SiamRPNTracker_ntr,
          }
 
 

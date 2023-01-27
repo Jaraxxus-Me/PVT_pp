@@ -12,6 +12,7 @@ from torch.nn import ModuleList
 import torch.nn.functional as F
 from pysot.models.predictor.base_predictor import BasePredictor
 from pysot.utils.bbox import cxy_wh_2_rect, rect_2_cxy_wh
+import time
 
 
 class LearnBaseV5(BasePredictor):
@@ -100,6 +101,8 @@ class LearnBaseV5(BasePredictor):
             in_delta[:,:-len(tra_data['delta']),:] = in_delta[:,-len(tra_data['delta']),:].unsqueeze(1).repeat(1,(self.num_input - len(tra_data['delta'])),1)
 
         # same as forward
+        t.cuda.synchronize()
+        s = time.time()
         in_data = self.input_encode(in_delta)
         motion_cue = self.mid_hidden(self.temporal(in_data.permute(0,2,1)).mean(dim=2))
         output = []
@@ -110,6 +113,9 @@ class LearnBaseV5(BasePredictor):
         # Calculate input normalize factor
         dm = t.abs(in_delta[:,:,4:]).mean(dim=[1],keepdim=True)
         norm_loc = out*dm.repeat(1, out.shape[1], 1)
+        t.cuda.synchronize()
+        e = time.time()
+        print('Latency: {}'.format(e-s))
         # input
         # Predict normalized delta
         meta_box = t.from_numpy(tra_data['boxes'][str(current_fid)]).cuda().unsqueeze(0)

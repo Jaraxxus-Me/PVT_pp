@@ -1,9 +1,9 @@
 import pickle
 import os
 
-pkl_path = 'Raw_Results_RPN_Mob/DTB70/SiamRPN++_Mob'
+pkl_path = 'Raw_Results_RPN_Mob/UAVDT/SiamRPN++_Mob'
 tracker = 'SiamRPN++_Mob'
-dataset = 'DTB70'
+dataset = 'UAVDT'
 tgt_path = 'testing_dataset/sim_info'
 
 pkls = os.listdir(pkl_path)

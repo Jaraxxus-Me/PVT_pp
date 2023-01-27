@@ -9,9 +9,8 @@ import torch
 import numpy as np
 from time import perf_counter
 
-from pysot.core.config import cfg
 from pysot.models import get_modelbuilder
-from pysot.models.model_builder import ModelBuilder
+from pysot.core.config import cfg
 from pysot.tracker.tracker_builder import build_tracker_f
 from pysot.utils.bbox import get_axis_aligned_bbox
 from pysot.utils.model_load import load_pretrain
@@ -20,10 +19,12 @@ from toolkit.datasets import DatasetFactory
 
 
 parser = argparse.ArgumentParser(description='siamrpn tracking')
-parser.add_argument('--dataset', default='DTB70',type=str,
+# UAVDT/DTB70/UAV20
+parser.add_argument('--dataset', default='RealWorld',type=str,
         help='datasets')
-parser.add_argument('--datasetroot', default='./testing_dataset/DTB70/',type=str,
+parser.add_argument('--datasetroot', default='testing_dataset/real_world',type=str,
         help='datasetsroot')
+parser.add_argument('--pkl_info', default='testing_dataset/sim_info/DTB70_SiamRPN++_Mob_sim.pkl', help='dataset_sim info')
 parser.add_argument('--fps', default=30,type=int,
         help='input frame rate')
 # frames to predict
@@ -32,10 +33,11 @@ parser.add_argument('--eta', default=2,type=int,
 # fix or dynamic
 parser.add_argument('--dynamic', default=True,
         help='predict range = latest miss + eta')
-# LB: experiments/siamrpn_mobilev2_l234_dwxcorr/pre_lb_config.yaml
-parser.add_argument('--config', default='experiments/siamrpn_mobilev2_l234_dwxcorr/pre_mv_config.yaml', type=str, help='config file')
-# LB: models/RPN_Mob_M.pth
-parser.add_argument('--snapshot', default='models/RPN_Mob_MV.pth', type=str,
+# KF: ./experiments/siamrpn_r50_l234_dwxcorr/pre_kf_config.yaml
+# LB: ./experiments/siamrpn_r50_l234_dwxcorr/pre_lb_config_2.yaml
+parser.add_argument('--config', default='experiments/siamrpn_mobilev2_l234_dwxcorr/pre_kf_config.yaml', type=str,
+        help='config file')
+parser.add_argument('--snapshot', default='models/RPN_Mob.pth', type=str,
         help='snapshot of models to eval')
 parser.add_argument('--video', default='', type=str,
         help='eval one special video')
@@ -50,9 +52,21 @@ torch.set_num_threads(1)
 def main():
     # load config
     cfg.merge_from_file(args.config)
-
     UAVDTdataset = args.datasetroot
     dataset_root = os.path.join(UAVDTdataset)
+    with open(args.sim_info, 'rb') as f_sim:
+        sim_info = pickle.load(f_sim)
+
+    # use DTB70 latency to run UAV123, UAVDT, UAV20L
+    if args.dataset != args.sim_info.split('/')[-1].split('_')[0]:
+        seqs = sim_info.keys()
+        avg_init = 0
+        avg_run = 0
+        for seq in seqs:
+            avg_init += sim_info[seq]['init_time']
+            avg_run += sim_info[seq]['running_time']
+        avg_init /= len(seqs)
+        avg_run /= len(seqs)
     
     # create model
     model = get_modelbuilder(cfg.PRED.MODE)
@@ -68,24 +82,25 @@ def main():
                                             dataset_root=dataset_root,
                                             load_img=False)
 
-    model_name = args.snapshot.split('/')[-1].split('.')[0]+'_'+cfg.PRED.TYPE
+    model_name = args.snapshot.split('/')[-1].split('.')[0]
+
     torch.cuda.synchronize()
 
     # OPE tracking
     for v_idx, video in enumerate(dataset):
         toc = 0
-        predictor_outputs = {}
         pred_bboxes = []
         scores = []
         track_times = []
         input_fidx = []
         runtime = []
         timestamps = []
+        predictor_outputs = {}
         last_fidx = None
         n_frame=len(video)
         t_total = n_frame/args.fps
         # result path
-        o_path=os.path.join('results_rt_raw', args.dataset, model_name+'_{}'.format(args.eta))
+        o_path=os.path.join('results_rt_raw', args.dataset, 'Raw_pred_sim', model_name)
         if not os.path.isdir(o_path):
             os.makedirs(o_path)
         out_path = os.path.join(o_path, video.name + '.pkl')
@@ -93,13 +108,11 @@ def main():
             print('({:3d}) Video: {:12s} already done!'.format(
             v_idx+1, video.name))
             continue
-        video.load_img()
-        t_start = perf_counter()
-        # debug fix time
-        # t_elapsed = 0
+        init_time = sim_info[video.name]['init_time'] if args.dataset == args.sim_info.split('/')[-1].split('_')[0] else avg_init
+        run_time = sim_info[video.name]['running_time'] if args.dataset == args.sim_info.split('/')[-1].split('_')[0] else avg_run
+        t_start = 0
+        t_elapsed=0
         while 1:
-            t1 = perf_counter()
-            t_elapsed=t1-t_start
             if t_elapsed>t_total:
                 break
             # identify latest available frame
@@ -115,13 +128,10 @@ def main():
                 gt_bbox_ = [cx-(w-1)/2, cy-(h-1)/2, w, h]
                 tracker.init(img, gt_bbox_)
                 torch.cuda.synchronize()
-                # debug, fix time
-                # t2 = t_start + 0.1
-                t2 = perf_counter()
+                t2 = init_time
                 t_elapsed=t2-t_start
                 timestamps.append(t_elapsed)
-                runtime.append(t2-t1)
-                # runtime.append(0.1)
+                runtime.append(init_time)
                 pred_bbox = gt_bbox_
                 scores.append(None)
                 pred_bboxes.append(pred_bbox)
@@ -131,27 +141,34 @@ def main():
                 # first do prediction
                 # range should be slightly bigger than latest skipped frames
                 if args.dynamic:
-                    latest_mismatch = fidx - last_fidx + args.eta
+                    latest_mismatch = (fidx - last_fidx) + args.eta
                 else:
                     latest_mismatch = args.eta
-                condition = len(tracker.traject['fidx'])>1 if cfg.PRED.TYPE=='KF' else (len(tracker.traject['fidx'])>cfg.TRAIN.NUM_FRAME and (fidx - last_fidx)<cfg.TRAIN.PRE_TARGET)
+                # at least tracker should have 2 results for prediction
+                # condition = len(tracker.traject['fidx'])>1 if cfg.PRED.TYPE=='KF' else (len(tracker.traject['fidx'])>cfg.TRAIN.NUM_FRAME and (fidx - last_fidx)<=cfg.TRAIN.PRE_TARGET)
+                # How about we fix?
+                # pred_start_delta = fidx - last_fidx
+                # pred_end = min(2*(fidx - last_fidx) + args.eta, predictor.max_target)
+                condition = len(tracker.traject['fidx'])>1 if cfg.PRED.TYPE=='KF' else (len(tracker.traject['fidx'])>1 and (fidx - last_fidx)<cfg.TRAIN.PRE_TARGET)
                 if condition:
                     # predictor latest output for future frame
+                    s = perf_counter()
                     pred_boxes, pred_ids = tracker.predict(last_fidx, fidx, latest_mismatch)
                     # predictor latency for updating evaluation results
                     # t_elapsed += 0.01
-                    t_elapsed = perf_counter()-t_start
+                    t_elapsed += 0.01
                     # the predictor results is used for correction and evaluation
                     predictor_outputs = tracker.update_pred(pred_boxes, fidx, pred_ids, t_elapsed)
+                    t = perf_counter() - s
                 # tracker output for frame: fidx
                 tracker_outputs = tracker.track(img, fidx)
                 torch.cuda.synchronize()
                 # debug, fix time
-                t2 = perf_counter()
+                t2 = t2 + run_time
                 t_elapsed=t2-t_start
                 # t_elapsed += 0.1
                 timestamps.append(t_elapsed)
-                runtime.append(t2-t1)
+                runtime.append(run_time)
                 # runtime.append(0.1)
                 pred_bbox = tracker_outputs['bbox']
                 pred_bboxes.append(pred_bbox)
@@ -176,14 +193,6 @@ def main():
                 'runtime_all': runtime,
             }, open(out_path, 'wb'))
         toc /= cv2.getTickFrequency()
-        # save results
-        # model_path = os.path.join('results', args.dataset, model_name)
-        # if not os.path.isdir(model_path):
-        #     os.makedirs(model_path)
-        # result_path = os.path.join(model_path, '{}.txt'.format(video.name))
-        # with open(result_path, 'w') as f:
-        #     for x in pred_bboxes:
-        #         f.write(','.join([str(i) for i in x])+'\n')
         print('({:3d}) Video: {:12s} Time: {:5.1f}s Speed: {:3.1f}fps'.format(
             v_idx+1, video.name, toc, len(runtime) / sum(runtime)))
 
