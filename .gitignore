@@ -6,4 +6,5 @@ training_dataset/
 results_rt/
 results_rt_raw/
 models/
-__pycache__
+__pycache__/
+*.py[cod]
