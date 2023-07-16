@@ -68,7 +68,12 @@ def main():
                     name=video.split('/')[-2]
                     name_rt=name
                 # print('Pairing {:s} output with the ground truth ({:d}/{:d}): {:s}'.format(tracker,len(gt_list),gt_idx,name))
-                results = pickle.load(open(join(ra_path, name + '.pkl'), 'rb'))
+                try:
+                    results = pickle.load(open(join(ra_path, name + '.pkl'), 'rb'))
+                except FileNotFoundError as e:
+                    # Code to execute if an error occurs
+                    print("Trying use 'uav' ahead: ", str(e))
+                    results = pickle.load(open(join(ra_path, 'uav_' + name + '.pkl'), 'rb'))
                 gtlen = len(open(video).readlines())
                 # use raw results when possible in case we change class subset during evaluation
                 results_raw = results.get('results_raw', None)
@@ -112,8 +117,8 @@ def main():
                 with open(result_path, 'w') as f:
                     for x in pred_bboxes:
                         f.write(','.join([str(i) for i in x])+'\n')
-        speed_f.write("Avg speed: {}".format(sum(fps_a)/len(fps_a)))
-        speed_f.close()
+            speed_f.write("Avg speed: {}".format(sum(fps_a)/len(fps_a)))
+            speed_f.close()
 
 if __name__ == '__main__':
     main()

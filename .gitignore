@@ -5,6 +5,8 @@ training_dataset/
 *.zip
 results_rt/
 results_rt_raw/
+results_eLAE/
+Raw/
 models/
 __pycache__/
 *.py[cod]
