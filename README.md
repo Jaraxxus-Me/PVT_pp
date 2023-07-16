@@ -1,21 +1,34 @@
 # PVT++: A Simple End-to-End Latency-Aware Visual Tracking Framework
 
-### CoRL 2022 Anonymous Submission 28
+### ICCV 2023
 
 
 
 
 ## Abstract
 
-Visual object tracking is an essential capability of intelligent robots. Most existing approaches have ignored the online latency that can cause severe performance degradation during real-world processing. This work presents a simple framework for end-to-end latency-aware tracking, *i.e.*, end-to-end predictive visual tracking (PVT++). Our PVT++ is capable of turning most leading-edge trackers into predictive trackers by appending an online predictor. Unlike existing solutions that use model-based approaches, our framework is learnable, such that it can take not only motion information as input but it can also take advantage of visual cues or a combination of both. Moreover, since PVT++ is end-to-end optimizable, it can further boost the latency-aware tracking performance. Additionally, this work presents an extended latency-aware evaluation benchmark (e-LAE) for assessing an *any-speed* tracker in the online setting. Empirical results show that the motion-based PVT++ can obtain on par or better performance than existing approaches. Further incorporating visual information and joint training techniques, PVT++ can achieve up to **60%** performance gain on various trackers, essentially removing the degradation brought by their high latency onboard. 
-
+Visual object tracking is essential to intelligent robots. Most existing approaches have ignored the online latency that can cause severe performance degradation during real-world processing. Especially for unmanned aerial vehicles (UAVs), where robust tracking is more challenging and onboard computation is limited, the latency issue can be fatal. In this work, we present a simple framework for end-to-end latency-aware tracking, \textit{i.e.}, end-to-end predictive visual tracking (PVT++). Unlike existing solutions that naively append Kalman Filters after trackers, PVT++ can be jointly optimized, so that it takes not only motion information but can also leverage the rich visual knowledge in most pre-trained tracker models for robust prediction. Besides, to bridge the training-evaluation domain gap, we propose a relative motion factor, empowering PVT++ to generalize to the challenging and complex UAV tracking scenes. These careful designs have made the small-capacity lightweight PVT++ a widely effective solution. Additionally, this work presents an extended latency-aware evaluation benchmark for assessing an \textit{any-speed} tracker in the online setting. Empirical results on a robotic platform from the aerial perspective show that PVT++ can achieve significant performance gain on various trackers and exhibit higher accuracy than prior solutions, largely mitigating the degradation brought by latency. 
 
 
 ## Overview
 
 We provide baseline results and trained models available for download in the [PVT++ Model Zoo](MODEL_ZOO.md).
 
-For submission, we provide models with SiamRPN++_Mob, all the rest models and results will be available upon acceptance.
+**TODO.**
+- [x] Code for PVT++
+	- [x] Train
+	- [x] Test
+- [x] Code for e-LAE
+- [ ] All the official models
+	- [x] SiamRPN++_Mob
+	- [ ] SiamRPN++_Res
+ 	- [ ] SiamMask
+- [ ] All the raw results for PVT++
+	- [x] SiamRPN++_Mob
+	- [ ] SiamRPN++_Res
+ 	- [ ] SiamMask
+- [ ] All the vanilla tracker online results
+     
 
 
 
@@ -169,7 +182,7 @@ You'll generate the raw results in `results_rt_raw/`
 ```shell
 bash convert.sh # sigma = 0, predictive trackers, results in /results_rt_raw
 # output results are in /results_rt
-bash convert_new.sh # sigma = 0:0.02:1, original trackers, results in /Raw, we'll provide all the results upon acceptence
+bash convert_new.sh # sigma = 0:0.02:1, original trackers, results in /Raw, we'll provide all the results soon
 # output results are in /results_eLAE
 ```
 
@@ -196,4 +209,4 @@ The trained models will be in `/snapshot`
 
 ## Acknowledgement
 
-This library is developed on [PySOT](https://github.com/STVIR/pysot), we sincerely thank the contributors and developers.
+Our work is motivated by [ECCV2020 "Towards Streaming Perception"](https://link.springer.com/chapter/10.1007/978-3-030-58536-5_28) and ["Predictive Visual Tracking"](https://arxiv.org/pdf/2103.04508.pdf), we express our gratitude to the authors. This library is developed upon [PySOT](https://github.com/STVIR/pysot), we sincerely thank the contributors and developers.
