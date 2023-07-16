@@ -56,8 +56,7 @@ colorama         0.4.4
 
 tensorboardx             2.5.1
 
-We'll also provide the official docker image in the future for faster reproduction.
-
+We are basically using [PySOT](https://github.com/STVIR/pysot) environments.
 
 
 ## Dataset Preparation
@@ -145,7 +144,7 @@ export PYTHONPATH=/path/to/PVT++:$PYTHONPATH
 #### 2. Download PVT++ models
 Download models in [PVT++ Model Zoo](MODEL_ZOO.md) and put the them in `my_models/`.
 
-#### 3. Test models on Nvidian Jetson AGX Xavier
+#### 3. Test models on Nvidian Jetson AGX Xavier (You may find [this tutorial](https://github.com/Jaraxxus-Me/AirDet_ROS.git) useful to set up env on AGX)
 
 ```shell
 bash test_mob_agx.sh
