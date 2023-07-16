@@ -7,7 +7,7 @@
 
 ## Abstract
 
-Visual object tracking is essential to intelligent robots. Most existing approaches have ignored the online latency that can cause severe performance degradation during real-world processing. Especially for unmanned aerial vehicles (UAVs), where robust tracking is more challenging and onboard computation is limited, the latency issue can be fatal. In this work, we present a simple framework for end-to-end latency-aware tracking, \textit{i.e.}, end-to-end predictive visual tracking (PVT++). Unlike existing solutions that naively append Kalman Filters after trackers, PVT++ can be jointly optimized, so that it takes not only motion information but can also leverage the rich visual knowledge in most pre-trained tracker models for robust prediction. Besides, to bridge the training-evaluation domain gap, we propose a relative motion factor, empowering PVT++ to generalize to the challenging and complex UAV tracking scenes. These careful designs have made the small-capacity lightweight PVT++ a widely effective solution. Additionally, this work presents an extended latency-aware evaluation benchmark for assessing an \textit{any-speed} tracker in the online setting. Empirical results on a robotic platform from the aerial perspective show that PVT++ can achieve significant performance gain on various trackers and exhibit higher accuracy than prior solutions, largely mitigating the degradation brought by latency. 
+Visual object tracking is essential to intelligent robots. Most existing approaches have ignored the online latency that can cause severe performance degradation during real-world processing. Especially for unmanned aerial vehicles (UAVs), where robust tracking is more challenging and onboard computation is limited, the latency issue can be fatal. In this work, we present a simple framework for end-to-end latency-aware tracking, _i.e._, end-to-end predictive visual tracking (PVT++). Unlike existing solutions that naively append Kalman Filters after trackers, PVT++ can be jointly optimized, so that it takes not only motion information but can also leverage the rich visual knowledge in most pre-trained tracker models for robust prediction. Besides, to bridge the training-evaluation domain gap, we propose a relative motion factor, empowering PVT++ to generalize to the challenging and complex UAV tracking scenes. These careful designs have made the small-capacity lightweight PVT++ a widely effective solution. Additionally, this work presents an extended latency-aware evaluation benchmark for assessing an _any-speed_ tracker in the online setting. Empirical results on a robotic platform from the aerial perspective show that PVT++ can achieve significant performance gain on various trackers and exhibit higher accuracy than prior solutions, largely mitigating the degradation brought by latency. 
 
 
 ## Overview
@@ -18,7 +18,7 @@ We provide baseline results and trained models available for download in the [PV
 - [x] Code for PVT++
 	- [x] Train
 	- [x] Test
-- [x] Code for e-LAE
+- [x] Code for [e-LAE](https://github.com/Jaraxxus-Me/e-LAE.git)
 - [ ] All the official models
 	- [x] SiamRPN++_Mob
 	- [ ] SiamRPN++_Res
@@ -188,7 +188,7 @@ bash convert_new.sh # sigma = 0:0.02:1, original trackers, results in /Raw, we'l
 
 ### 2. Evaluation results
 
-refer to `/e-LAE` code
+refer to [e-LAE](https://github.com/Jaraxxus-Me/e-LAE.git) code
 
 
 
