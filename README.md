@@ -1,6 +1,7 @@
 # PVT++: A Simple End-to-End Latency-Aware Visual Tracking Framework
 
-### ICCV 2023
+### Bowen Li*, Ziyuan Huang*, Junjie Ye, Yiming Li, Sebastian Scherer, Hang Zhao, and Changhong Fu
+### Our paper is accepted at ICCV 2023
 
 
 
@@ -203,6 +204,19 @@ The trained models will be in `/snapshot`
 
 `LB5` refers to motion model, `lbv5` denotes visual predictor, `mv16` denotes joint model.
 
+## Reference
+If our work inspires your research, please cite us as:
+```
+@INPROCEEDINGS{Li2023iccv,       
+	author={Li, Bowen and Huang, Ziyuan and Ye, Junjie and Li, Yiming and Scherer, Sebastian and Zhao, Hang and Fu, Changhong},   
+	booktitle={Proceedings of the IEEE International Conference on Computer Vision (ICCV)}, 
+	title={{PVT++: A Simple End-to-End Latency-Aware Visual Tracking Framework}},
+	year={2023},
+	volume={},
+	number={},
+	pages={1-18}
+}
+```
  
 
 
