@@ -1,7 +1,7 @@
 # PVT++: A Simple End-to-End Latency-Aware Visual Tracking Framework
 
 ### Bowen Li*, Ziyuan Huang*, Junjie Ye, Yiming Li, Sebastian Scherer, Hang Zhao, and Changhong Fu
-### Our paper is accepted at ICCV 2023
+### Our paper is accepted at ICCV 2023 !!
 
 
 
