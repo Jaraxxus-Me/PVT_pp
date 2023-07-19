@@ -209,7 +209,7 @@ If our work inspires your research, please cite us as:
 ```
 @INPROCEEDINGS{Li2023iccv,       
 	author={Li, Bowen and Huang, Ziyuan and Ye, Junjie and Li, Yiming and Scherer, Sebastian and Zhao, Hang and Fu, Changhong},   
-	booktitle={Proceedings of the IEEE International Conference on Computer Vision (ICCV)}, 
+	booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, 
 	title={{PVT++: A Simple End-to-End Latency-Aware Visual Tracking Framework}},
 	year={2023},
 	volume={},
