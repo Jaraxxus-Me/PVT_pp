@@ -13,4 +13,5 @@ This file documents a collection of baselines trained with PVT++. All configurat
 | <sub>RPN_mob+Visual</sub> |      <sub>0.352\|0.472</sub>      |      <sub>0.564\|0.799</sub>      |      <sub>0.488\|0.675</sub>       |      <sub>0.504\|0.703</sub>       | <sub>[RPN_Mob_V](https://mega.nz/file/NRdlTTDS#TAcQwgEJmHLghFxFmDCTOv0gu5z57Eo3iiCaw-dRREw)</sub> |
 |   <sub>RPN_mob+MV</sub>   |      <sub>0.399\|0.536</sub>      |      <sub>0.576\|0.807</sub>      |      <sub>0.508\|0.697</sub>       |      <sub>0.537\|0.741</sub>       | <sub>[RPN_Mob_MV](https://mega.nz/file/EVFxSSYB#4TFSJoVELbztvhJX8xkDlqwldmJT6XucHBEy9nINdlM)</sub> |
 
-We also provide the [Raw_results](https://mega.nz/file/tFd02RxC#98PDk3XDhcXo9sZ-seKP5aklT0xC8rvbcUm77xu1Cmo)
+We also provide the [Raw_results](https://mega.nz/file/tFd02RxC#98PDk3XDhcXo9sZ-seKP5aklT0xC8rvbcUm77xu1Cmo).
+These files can also be found at [Google Drive](https://drive.google.com/file/d/1oZjoHGGXqKSC43yKTwn2zwxFQprDXp7L/view?usp=sharing).
