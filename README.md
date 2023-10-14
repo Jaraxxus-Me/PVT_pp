@@ -214,7 +214,7 @@ If our work inspires your research, please cite us as:
 	year={2023},
 	volume={},
 	number={},
-	pages={1-18}
+  	pages={10006--10016},
 }
 ```
  
